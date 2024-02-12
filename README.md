@@ -2,6 +2,17 @@
 
 ## Hardware Requirements
 
+Following are the hardware requirements for the streaming setup
+
+- Raspberry Pi 5 (4GB) for the streaming multiplexer, where restreamer would be installed
+- Raspberry Pi 4 (2/4GB) for the client for each TV to receive the stream
+- A class 10 (A1) SD Card of 23GB or more capacity for each Raspberry Pi
+- One USB Type C PD (Power Delivery) compliant adapter for each Pi
+- One USB Type C to C power cable for each Raspberry Pi
+- One micro to full HDMI cable for each Raspberry Pi
+- One SD card reader
+
+
 ## Prepare OS Image and software
 
 Download and install software to flash OS image to SD card [Raspberry Pi Imager](https://www.raspberrypi.com/software/). Another option is [Balena Etcher](https://etcher.balena.io/)
@@ -14,25 +25,25 @@ Follow these steps to flash the OS image to SD card
 - Raspberry Pi imager: Choose Storage - Select the SD Card Reader
 - Remove the SD card and install in Raspberry Pi
 
-Follow these steps to install required software. At this stage the board would need to be connected to a network which would not block internet access.
+Follow these steps to install required software. At this stage the board would need to be connected to a network which does not block internet access.
 
 - Connect a network cable, keyboard, mouse, monitor and power up the raspberry pi
 - wait for 2 minutes for the first boot
 - Update password using `passwd` command, default user name is "pi" and password is "raspberry"
-- create a new user, set passwd, and set it to 'linger'
+- create a new user, set passwd, and set it to 'linger', using instructions below
 
-bash```
+```bash
 sudo adduser tw
 sudo passwd tw
 sudo loginctl enable-linger tw
 # confirm that linger has been enabled
-sudo loginctl show-user webuser | grep ^Linger
+sudo loginctl show-user tw | grep ^Linger
 ```
 
-Run following commands to update OS and install required software "podman", which is a OpenSource drop in replacement for Docker.
+Run following commands to update OS and install required software "podman", which is a OpenSource drop-in replacement for Docker.
 
-bash```
-sudo apt update && sudo upgrade
+```bash
+sudo apt update && sudo apt upgrade
 sudo apt install podman
 ```
 
@@ -40,23 +51,23 @@ sudo apt install podman
 
 Logout of the default "pi" user and login to the newly creater "tw" user
 
-Create configuration and data files in the home folder to be used by the re-streamer container
+Create configuration and data folders in the home folder to be used by the re-streamer container
 
-bash```
+```bash
 mkdir -p restreamer/config
 mkdir -p restreamer/data
 ```
 
-Fetch the image and start container
+Fetch the re-streamer image 
 
-bash```
+```bash
 podman pull docker.io/datarhei/restreamer:rpi-latest
 ```
 
 Copy the image ID as listed by the command `podman images`
 Run the below command to run the container based on the downloaded image
 
-bash```
+```bash
 podman run -d --rm --name restreamer -v ~/restreamer/config:/core/config -v ~/restreamer/data:/core/data -p 8080:8080 -p 8181:8181 -p 1935:1935 -p 1936:1936 -p 6000:6000/udp <image-id>
 ```
 
@@ -64,8 +75,8 @@ podman run -d --rm --name restreamer -v ~/restreamer/config:/core/config -v ~/re
 
 Run following commands to creates a systemd service unit file and enable the service
 
-bash```
-podman generate systemd --new --name restreamer -f > ~/.config/systemd/user/restreamer.service
+```bash
+podman generate systemd --new --name restreamer > ~/.config/systemd/user/restreamer.service
 podman stop restreamer && podman rm restreamer && podman volume prune restreamer
 systemctl --user daemon-reload
 systemctl --user enable restreamer.service
