@@ -97,3 +97,23 @@ Go to Menu (Top right corner icon) --> System, to go Network tab, enter IP Addre
 Click on video setup (Green Button), select video source "RTMP server", copy the generated URL, this would be used in OBS to send stream to.
 
 Now, back to Restreamer, click Next, select video resolution 1080 etc., select Audio settings in the next screen, add meta data in the next screen, finally channel dashboard would be displayed, copy the content address, to be used in the browser to view.
+
+## Configure Receiver 
+
+The following steps are used to configure the SBC receiving the stream. 
+The browser needs to open at startup in "Kiosk" mode and open the default URL.
+
+```bash
+mkdir -p ~/.config/autostart
+nano ~/.config/autostart/open_browser.desktop
+```
+
+Add the following content to the file 
+
+```
+[Desktop Entry]
+Type=Application
+Name=OpenBrowser
+Exec=chromium-browser --kiosk <IP Address>
+X-GNOME-Autostart-enabled=true
+```
