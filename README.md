@@ -105,15 +105,54 @@ The browser needs to open at startup in "Kiosk" mode and open the default URL.
 
 ```bash
 mkdir -p ~/.config/autostart
+mkdir -p ~/tw-stream
+touch ~/tw-stream/browser-start.sh
+chmod +x ~/tw-stream/browser-start.sh
 nano ~/.config/autostart/open_browser.desktop
 ```
 
-Add the following content to the file 
+Add the following content to the file "open_browser.desktop"
 
 ```
 [Desktop Entry]
 Type=Application
 Name=OpenBrowser
-Exec=chromium-browser --kiosk <IP Address>
+Exec=/home/pi/tw-stream/browser-start.sh &
 X-GNOME-Autostart-enabled=true
 ```
+
+```bash
+nano ~/tw-stream/browser-start.sh
+```
+
+Add the following content to the file "browser-start.sh"
+
+```bash
+#!/usr/bin/env bash
+
+# Cleanup chrome crash status
+sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' '~/.config/chromium/Default/Preferences'
+sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' '~/.config/chromium/Default/Preferences'
+
+
+export DISPLAY=:0
+sleep 15
+chromium-browser --start-maximized --kiosk --noerrdialogs --disable-infobars --no-first-run --ozone-platform=wayland <Link> &
+```
+
+
+## Managing Devices
+
+If need to kill the existing browser session (from SSH)
+
+```bash
+pkill chromium
+```
+
+To start a new session 
+
+```bash
+export DISPLAY=:0
+chromium-browser --kiosk <IP Address> &
+```
+
